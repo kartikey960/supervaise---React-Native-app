@@ -1,100 +1,100 @@
 import React, { useState } from 'react';
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  StyleSheet,
-  SafeAreaView,
-  Image,
-} from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Image } from 'react-native';
+import LinearGradient from 'react-native-linear-gradient';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function SuperviseScreen1({ navigation }) {
   const [selectedRole, setSelectedRole] = useState(null);
 
   return (
-    <SafeAreaView style={styles.outerContainer}>
-      <View style={styles.innerCard}>
-        <View style={styles.topSection}>
-          <Image
-            source={require('../assests/logo/logo2.png')}
-            style={styles.logo}
-          />
+    <LinearGradient
+      colors={['#A7D8E6', '#6EC1C7', '#3AA6A6']}
+      style={{ flex: 1 }}
+    >
+      <SafeAreaView style={styles.outerContainer}>
+        <View style={styles.innerCard}>
+          <View style={styles.topSection}>
+            <Image
+              source={require('../assests/logo/logo2.png')}
+              style={styles.logo}
+            />
 
-          <Text style={styles.title}>Choose Your Role</Text>
-          <Text style={styles.subtitle}>
-            Select how you'll be using the platform
-          </Text>
+            <Text style={styles.title}>Choose Your Role</Text>
+            <Text style={styles.subtitle}>
+              Select how you'll be using the platform
+            </Text>
 
-          <TouchableOpacity
-            style={[
-              styles.card,
-              styles.flexCard,
-              selectedRole === 'clinician' && styles.blueCard,
-            ]}
-            onPress={() => setSelectedRole('clinician')}
-          >
-            <View style={styles.row}>
-              <Image
-                source={require('../assests/logo/logosupervise1.png')}
-                style={styles.cardImage}
-              />
+            <TouchableOpacity
+              style={[
+                styles.card,
+                styles.flexCard,
+                selectedRole === 'clinician' && styles.blueCard,
+              ]}
+              onPress={() => setSelectedRole('clinician')}
+            >
+              <View style={styles.row}>
+                <Image
+                  source={require('../assests/logo/logosupervise1.png')}
+                  style={styles.cardImage}
+                />
 
-              <View style={styles.textContainer}>
-                <Text style={styles.cardTitle}>I'm a Clinician</Text>
-                <Text style={styles.cardDesc}>
-                  Find supervisors, track hours, and manage your supervision
-                  journey
-                </Text>
+                <View style={styles.textContainer}>
+                  <Text style={styles.cardTitle}>I'm a Clinician</Text>
+                  <Text style={styles.cardDesc}>
+                    Find supervisors, track hours, and manage your supervision
+                    journey
+                  </Text>
 
-                <View style={styles.tags}>
-                  <Text style={styles.tag}>Graduate</Text>
-                  <Text style={styles.tag}>Pre-licensed</Text>
-                  <Text style={styles.tag}>Provisionally Licensed</Text>
+                  <View style={styles.tags}>
+                    <Text style={styles.tag}>Graduate</Text>
+                    <Text style={styles.tag}>Pre-licensed</Text>
+                    <Text style={styles.tag}>Provisionally Licensed</Text>
+                  </View>
                 </View>
               </View>
-            </View>
-          </TouchableOpacity>
+            </TouchableOpacity>
 
-          <TouchableOpacity
-            style={[
-              styles.card,
-              styles.flexCard,
-              selectedRole === 'supervisor' && styles.greenCard,
-            ]}
-            onPress={() => setSelectedRole('supervisor')}
-          >
-            <View style={styles.row}>
-              <Image
-                source={require('../assests/logo/logosupervise2.png')}
-                style={styles.cardImage}
-              />
+            <TouchableOpacity
+              style={[
+                styles.card2,
+                styles.flexCard,
+                selectedRole === 'supervisor' && styles.greenCard,
+              ]}
+              onPress={() => setSelectedRole('supervisor')}
+            >
+              <View style={styles.row}>
+                <Image
+                  source={require('../assests/logo/logosupervise2.png')}
+                  style={styles.cardImage}
+                />
 
-              <View style={styles.textContainer}>
-                <Text style={styles.cardTitle}>I'm a Supervisor</Text>
-                <Text style={styles.cardDesc}>
-                  Manage supervisees, approve hours, and provide guidance
-                </Text>
+                <View style={styles.textContainer}>
+                  <Text style={styles.cardTitle}>I'm a Supervisor</Text>
+                  <Text style={styles.cardDesc}>
+                    Manage supervisees, approve hours, and provide guidance
+                  </Text>
 
-                <View style={styles.tags}>
-                  <Text style={styles.tagGreen}>Licensed Professional</Text>
-                  <Text style={styles.tagGreen}>Mentor</Text>
+                  <View style={styles.tags}>
+                    <Text style={styles.tagGreen}>Licensed Professional</Text>
+                    <Text style={styles.tagGreen}>Mentor</Text>
+                  </View>
                 </View>
               </View>
-            </View>
+            </TouchableOpacity>
+          </View>
+
+          <TouchableOpacity
+            style={[styles.button, !selectedRole && styles.disabledButton]}
+            disabled={!selectedRole}
+            onPress={() => {
+              navigation.navigate('SuperviseScreen2');
+            }}
+          >
+            <Text style={styles.buttonText}>Continue →</Text>
           </TouchableOpacity>
         </View>
-
-        <TouchableOpacity
-          style={[styles.button, !selectedRole && styles.disabledButton]}
-          disabled={!selectedRole}
-          onPress={() => {
-            navigation.navigate('SuperviseScreen2');
-          }}
-        >
-          <Text style={styles.buttonText}>Continue →</Text>
-        </TouchableOpacity>
-      </View>
-    </SafeAreaView>
+      </SafeAreaView>
+    </LinearGradient>
   );
 }
 const styles = StyleSheet.create({
@@ -139,6 +139,14 @@ const styles = StyleSheet.create({
     padding: 18,
     borderWidth: 1,
     borderColor: '#eee',
+    backgroundColor: '#DBEAFE',
+  },
+  card2: {
+    borderRadius: 20,
+    padding: 18,
+    borderWidth: 1,
+    borderColor: '#eee',
+    backgroundColor: '#D9FFE7',
   },
 
   flexCard: {

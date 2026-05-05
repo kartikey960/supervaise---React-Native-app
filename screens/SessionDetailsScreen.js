@@ -13,6 +13,7 @@ import {
   PermissionsAndroid,
   ActivityIndicator,
 } from 'react-native';
+import LinearGradient from 'react-native-linear-gradient';
 import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import axios from 'axios';
@@ -40,7 +41,6 @@ export default function ScreenDetailsScreen({ navigation }) {
   const [duration, setDuration] = useState('');
   const [notes, setNotes] = useState('');
 
-  // Error states
   const [errors, setErrors] = useState({});
 
   const licenseOptions = [
@@ -234,23 +234,41 @@ export default function ScreenDetailsScreen({ navigation }) {
     setLoading(true);
 
     try {
-      const response = await axios({
-        method: 'POST',
-        url: 'https://testing-1dzm.onrender.com/api/auth/register',
-        data: {
-          username: fullName || 'testuser',
-          email: email || `test${Date.now()}@gmail.com`,
-          password: password || '123456',
-        },
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        timeout: 30000,
-      });
+      const controller = new AbortController(); // for timeout
+      const timeoutId = setTimeout(() => controller.abort(), 30000);
 
-      console.log('SUCCESS RESPONSE:', response.status, response.data);
+      const response = await fetch(
+        'https://testing-1dzm.onrender.com/api/auth/register',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            username: fullName || 'testuser',
+            email: email || `test${Date.now()}@gmail.com`,
+            password: password || '123456',
+          }),
+          signal: controller.signal,
+        },
+      );
 
-      Alert.alert('SUCCESS', JSON.stringify(response.data));
+      clearTimeout(timeoutId);
+
+      const data = await response.json();
+
+      // 🔥 manual error handling (important)
+      if (!response.ok) {
+        console.log('STATUS:', response.status);
+        console.log('DATA:', data);
+
+        Alert.alert(`Server Error ${response.status}`, JSON.stringify(data));
+        return;
+      }
+
+      console.log('SUCCESS RESPONSE:', response.status, data);
+
+      Alert.alert('SUCCESS', JSON.stringify(data));
 
       navigation.navigate('OTPScreen', {
         email,
@@ -258,408 +276,418 @@ export default function ScreenDetailsScreen({ navigation }) {
         password,
       });
     } catch (error) {
-      console.log('FULL ERROR:', JSON.stringify(error));
+      console.log('FULL ERROR:', error);
 
-      if (error.response) {
-        // ✅ SERVER ERROR (400 / 500)
-        console.log('STATUS:', error.response.status);
-        console.log('DATA:', error.response.data);
-
-        Alert.alert(
-          `Server Error ${error.response.status}`,
-          JSON.stringify(error.response.data),
-        );
-      } else if (error.request) {
-        // ❌ NETWORK ERROR
-        console.log('NO RESPONSE FROM SERVER');
-        console.log('ERROR CODE:', error.code);
-
+      if (error.name === 'AbortError') {
+        Alert.alert('Timeout', 'Request took too long');
+      } else {
         Alert.alert(
           'Network Error',
           error.message + '\nCheck internet or server down',
         );
-      } else {
-        // ❌ OTHER ERROR
-        console.log('ERROR MESSAGE:', error.message);
-
-        Alert.alert('Error', error.message);
       }
     } finally {
       setLoading(false);
     }
   };
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <View style={styles.background}>
-        <View style={styles.card}>
-          <ScrollView
-            showsVerticalScrollIndicator={false}
-            contentContainerStyle={styles.scrollContent}
-          >
-            <TouchableOpacity
-              style={styles.backRow}
-              onPress={() => navigation?.goBack()}
+    <LinearGradient
+      colors={['#A7D8E6', '#6EC1C7', '#3AA6A6']}
+      style={{ flex: 1 }}
+    >
+      <SafeAreaView style={styles.safeArea}>
+        <View style={styles.background}>
+          <View style={styles.card}>
+            <ScrollView
+              showsVerticalScrollIndicator={false}
+              contentContainerStyle={styles.scrollContent}
             >
-              <Text style={styles.backArrow}>←</Text>
-              <Text style={styles.backText}>Back</Text>
-            </TouchableOpacity>
-
-            <Text style={styles.heading}>Complete Your Profile</Text>
-            <Text style={styles.subHeading}>Tell us a bit about yourself</Text>
-
-            <TouchableOpacity
-              style={styles.uploadWrapper}
-              onPress={openImageOptions}
-            >
-              <View
-                style={[
-                  styles.uploadCircle,
-                  errors.profileImage && styles.errorInput,
-                ]}
+              <TouchableOpacity
+                style={styles.backRow}
+                onPress={() => navigation?.goBack()}
               >
-                {profileImage ? (
-                  <Image
-                    source={{ uri: profileImage }}
-                    style={styles.profileImage}
-                  />
-                ) : (
-                  <Text style={styles.uploadIcon}>🖼️</Text>
-                )}
-              </View>
+                <Text style={styles.backArrow}>←</Text>
+                <Text style={styles.backText}>Back</Text>
+              </TouchableOpacity>
 
-              <View style={styles.cameraBadge}>
-                <Text style={styles.cameraIcon}>📷</Text>
-              </View>
-            </TouchableOpacity>
-
-            <TouchableOpacity onPress={openImageOptions}>
-              <Text style={styles.uploadText}>Upload Profile Image</Text>
-            </TouchableOpacity>
-            {errors.profileImage && (
-              <Text
-                style={[
-                  styles.errorText,
-                  { textAlign: 'center', marginBottom: 10 },
-                ]}
-              >
-                {errors.profileImage}
+              <Text style={styles.heading}>Complete Your Profile</Text>
+              <Text style={styles.subHeading}>
+                Tell us a bit about yourself
               </Text>
-            )}
 
-            <Text style={styles.label}>Full Name *</Text>
-            <TextInput
-              style={[styles.textInput, errors.fullName && styles.errorInput]}
-              placeholder="John Doe"
-              placeholderTextColor="#9CA3AF"
-              value={fullName}
-              onChangeText={text => {
-                setFullName(text);
-                setErrors(prev => ({ ...prev, fullName: '' }));
-              }}
-            />
-            {errors.fullName && (
-              <Text style={styles.errorText}>{errors.fullName}</Text>
-            )}
+              <TouchableOpacity
+                style={styles.uploadWrapper}
+                onPress={openImageOptions}
+              >
+                <View
+                  style={[
+                    styles.uploadCircle,
+                    errors.profileImage && styles.errorInput,
+                  ]}
+                >
+                  {profileImage ? (
+                    <Image
+                      source={{ uri: profileImage }}
+                      style={styles.profileImage}
+                    />
+                  ) : (
+                    <Text style={styles.uploadIcon}>🖼️</Text>
+                  )}
+                </View>
 
-            <Text style={styles.label}>Email Address *</Text>
-            <TextInput
-              style={[styles.textInput, errors.email && styles.errorInput]}
-              placeholder="john.doe@example.com"
-              placeholderTextColor="#9CA3AF"
-              keyboardType="email-address"
-              value={email}
-              onChangeText={text => {
-                setEmail(text);
-                setErrors(prev => ({ ...prev, email: '' }));
-              }}
-            />
-            {errors.email && (
-              <Text style={styles.errorText}>{errors.email}</Text>
-            )}
+                <View style={styles.cameraBadge}>
+                  <Text style={styles.cameraIcon}>📷</Text>
+                </View>
+              </TouchableOpacity>
 
-            <Text style={styles.label}>Password *</Text>
-            <View
-              style={[
-                styles.passwordWrapper,
-                errors.password && styles.errorInput,
-              ]}
-            >
+              <TouchableOpacity onPress={openImageOptions}>
+                <Text style={styles.uploadText}>Upload Profile Image</Text>
+              </TouchableOpacity>
+              {errors.profileImage && (
+                <Text
+                  style={[
+                    styles.errorText,
+                    { textAlign: 'center', marginBottom: 10 },
+                  ]}
+                >
+                  {errors.profileImage}
+                </Text>
+              )}
+
+              <Text style={styles.label}>Full Name *</Text>
               <TextInput
-                style={styles.passwordInput}
-                placeholder="••••••••"
+                style={[styles.textInput, errors.fullName && styles.errorInput]}
+                placeholder="John Doe"
                 placeholderTextColor="#9CA3AF"
-                secureTextEntry={!showPassword}
-                value={password}
+                value={fullName}
                 onChangeText={text => {
-                  setPassword(text);
-                  setErrors(prev => ({ ...prev, password: '' }));
+                  setFullName(text);
+                  setErrors(prev => ({ ...prev, fullName: '' }));
                 }}
               />
-              <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
-                <Text style={styles.eyeIcon}>{showPassword ? '🙈' : '👁️'}</Text>
-              </TouchableOpacity>
-            </View>
-            {errors.password && (
-              <Text style={styles.errorText}>{errors.password}</Text>
-            )}
-
-            <Text style={styles.label}>Phone Number *</Text>
-            <TextInput
-              style={[styles.textInput, errors.phone && styles.errorInput]}
-              placeholder="(555) 123-4567"
-              placeholderTextColor="#9CA3AF"
-              keyboardType="phone-pad"
-              value={phone}
-              onChangeText={text => {
-                setPhone(text);
-                setErrors(prev => ({ ...prev, phone: '' }));
-              }}
-            />
-            {errors.phone && (
-              <Text style={styles.errorText}>{errors.phone}</Text>
-            )}
-
-            <Text style={styles.label}>License Type *</Text>
-            <TouchableOpacity
-              style={[
-                styles.dropdownBox,
-                errors.licenseType && styles.errorInput,
-              ]}
-              onPress={() => {
-                setShowLicenseOptions(!showLicenseOptions);
-                setShowStateOptions(false);
-                setShowDurationOptions(false);
-              }}
-            >
-              <Text
-                style={licenseType ? styles.inputText : styles.placeholderText}
-              >
-                {licenseType || 'Select license type'}
-              </Text>
-              <Text style={styles.dropdownArrow}>⌄</Text>
-            </TouchableOpacity>
-
-            {showLicenseOptions && (
-              <View style={styles.optionsContainer}>
-                {licenseOptions.map((item, index) => (
-                  <TouchableOpacity
-                    key={index}
-                    style={styles.optionItem}
-                    onPress={() => {
-                      setLicenseType(item);
-                      setShowLicenseOptions(false);
-                      setErrors(prev => ({ ...prev, licenseType: '' }));
-                    }}
-                  >
-                    <Text style={styles.optionText}>{item}</Text>
-                  </TouchableOpacity>
-                ))}
-              </View>
-            )}
-
-            {errors.licenseType && (
-              <Text style={styles.errorText}>{errors.licenseType}</Text>
-            )}
-
-            <Text style={styles.label}>State of Practice *</Text>
-            <TouchableOpacity
-              style={[
-                styles.dropdownBox,
-                errors.stateOfPractice && styles.errorInput,
-              ]}
-              onPress={() => {
-                setShowStateOptions(!showStateOptions);
-                setShowLicenseOptions(false);
-                setShowDurationOptions(false);
-              }}
-            >
-              <Text
-                style={
-                  stateOfPractice ? styles.inputText : styles.placeholderText
-                }
-              >
-                {stateOfPractice || 'Select state'}
-              </Text>
-              <Text style={styles.dropdownArrow}>⌄</Text>
-            </TouchableOpacity>
-
-            {showStateOptions && (
-              <View style={styles.optionsContainer}>
-                {stateOptions.map((item, index) => (
-                  <TouchableOpacity
-                    key={index}
-                    style={styles.optionItem}
-                    onPress={() => {
-                      setStateOfPractice(item);
-                      setShowStateOptions(false);
-                      setErrors(prev => ({ ...prev, stateOfPractice: '' }));
-                    }}
-                  >
-                    <Text style={styles.optionText}>{item}</Text>
-                  </TouchableOpacity>
-                ))}
-              </View>
-            )}
-
-            {errors.stateOfPractice && (
-              <Text style={styles.errorText}>{errors.stateOfPractice}</Text>
-            )}
-
-            <Text style={styles.label}>Want to log any previous hours?</Text>
-
-            <TouchableOpacity
-              style={styles.radioRow}
-              onPress={() => setLogPreviousHours('yes')}
-            >
-              <View
-                style={[
-                  styles.radioOuter,
-                  logPreviousHours === 'yes' && styles.radioOuterBlue,
-                  logPreviousHours !== 'yes' && styles.radioOuterGray,
-                ]}
-              >
-                {logPreviousHours === 'yes' && (
-                  <View style={styles.radioInnerBlue} />
-                )}
-              </View>
-              <Text style={styles.radioText}>I want to log previous hours</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={styles.radioRow}
-              onPress={() => setLogPreviousHours('no')}
-            >
-              <View
-                style={[
-                  styles.radioOuter,
-                  logPreviousHours === 'no' && styles.radioOuterGray,
-                ]}
-              >
-                {logPreviousHours === 'no' && (
-                  <View style={styles.radioInnerGray} />
-                )}
-              </View>
-              <Text style={styles.radioText}>
-                I don’t want to log previous hours
-              </Text>
-            </TouchableOpacity>
-
-            <Text style={styles.label}>Session Date *</Text>
-            <TouchableOpacity
-              style={[styles.dateBox, errors.sessionDate && styles.errorInput]}
-              onPress={() => {
-                setShowDatePicker(true);
-                setShowLicenseOptions(false);
-                setShowStateOptions(false);
-                setShowDurationOptions(false);
-              }}
-            >
-              <Text style={styles.calendarIcon}>📅</Text>
-              <Text
-                style={sessionDate ? styles.dateText : styles.placeholderText}
-              >
-                {sessionDate || 'Select session date'}
-              </Text>
-            </TouchableOpacity>
-            {errors.sessionDate && (
-              <Text style={styles.errorText}>{errors.sessionDate}</Text>
-            )}
-
-            {showDatePicker && (
-              <DateTimePicker
-                value={selectedDate}
-                mode="date"
-                display="default"
-                onChange={onChangeDate}
-                minimumDate={new Date()}
-              />
-            )}
-
-            <Text style={styles.label}>Duration *</Text>
-            <TouchableOpacity
-              style={[styles.dropdownBox, errors.duration && styles.errorInput]}
-              onPress={() => {
-                setShowDurationOptions(!showDurationOptions);
-                setShowLicenseOptions(false);
-                setShowStateOptions(false);
-              }}
-            >
-              <Text
-                style={duration ? styles.inputText : styles.placeholderText}
-              >
-                {duration || 'Select duration'}
-              </Text>
-              <Text style={styles.dropdownArrow}>⌄</Text>
-            </TouchableOpacity>
-
-            {showDurationOptions && (
-              <View style={styles.optionsContainer}>
-                {durationOptions.map((item, index) => (
-                  <TouchableOpacity
-                    key={index}
-                    style={styles.optionItem}
-                    onPress={() => {
-                      setDuration(item);
-                      setShowDurationOptions(false);
-                      setErrors(prev => ({ ...prev, duration: '' }));
-                    }}
-                  >
-                    <Text style={styles.optionText}>{item}</Text>
-                  </TouchableOpacity>
-                ))}
-              </View>
-            )}
-
-            {errors.duration && (
-              <Text style={styles.errorText}>{errors.duration}</Text>
-            )}
-
-            <Text style={styles.label}>Session Notes (Optional)</Text>
-            <TextInput
-              style={styles.notesBox}
-              placeholder="Add any relevant notes about this session..."
-              placeholderTextColor="#9CA3AF"
-              multiline
-              textAlignVertical="top"
-              value={notes}
-              onChangeText={setNotes}
-            />
-
-            <Text style={styles.label}>Supporting Documents (Optional)</Text>
-
-            <View style={styles.documentOuterBox}>
-              <TouchableOpacity style={styles.uploadDocumentBox}>
-                <Text style={styles.uploadDocIcon}>⤴</Text>
-                <Text style={styles.uploadDocText}>
-                  Click to upload documents
-                </Text>
-                <Text style={styles.uploadDocSubText}>PDF, DOC, or images</Text>
-              </TouchableOpacity>
-
-              <View style={styles.fileRow}>
-                <Text style={styles.fileIcon}>📄</Text>
-                <Text style={styles.fileName}>Document_1.pdf</Text>
-                <Text style={styles.fileClose}>✕</Text>
-              </View>
-            </View>
-
-            <TouchableOpacity
-              style={[styles.continueButton, loading && styles.disabledButton]}
-              onPress={handleContinue}
-              disabled={loading}
-            >
-              {loading ? (
-                <ActivityIndicator color="#FFFFFF" size="small" />
-              ) : (
-                <Text style={styles.continueButtonText}>Continue</Text>
+              {errors.fullName && (
+                <Text style={styles.errorText}>{errors.fullName}</Text>
               )}
-            </TouchableOpacity>
 
-            <View style={{ height: 30 }} />
-          </ScrollView>
+              <Text style={styles.label}>Email Address *</Text>
+              <TextInput
+                style={[styles.textInput, errors.email && styles.errorInput]}
+                placeholder="john.doe@example.com"
+                placeholderTextColor="#9CA3AF"
+                keyboardType="email-address"
+                value={email}
+                onChangeText={text => {
+                  setEmail(text);
+                  setErrors(prev => ({ ...prev, email: '' }));
+                }}
+              />
+              {errors.email && (
+                <Text style={styles.errorText}>{errors.email}</Text>
+              )}
+
+              <Text style={styles.label}>Password *</Text>
+              <View
+                style={[
+                  styles.passwordWrapper,
+                  errors.password && styles.errorInput,
+                ]}
+              >
+                <TextInput
+                  style={styles.passwordInput}
+                  placeholder="••••••••"
+                  placeholderTextColor="#9CA3AF"
+                  secureTextEntry={!showPassword}
+                  value={password}
+                  onChangeText={text => {
+                    setPassword(text);
+                    setErrors(prev => ({ ...prev, password: '' }));
+                  }}
+                />
+                <TouchableOpacity
+                  onPress={() => setShowPassword(!showPassword)}
+                >
+                  <Text style={styles.eyeIcon}>
+                    {showPassword ? '🚫' : '👁️'}
+                  </Text>
+                </TouchableOpacity>
+              </View>
+              {errors.password && (
+                <Text style={styles.errorText}>{errors.password}</Text>
+              )}
+
+              <Text style={styles.label}>Phone Number *</Text>
+              <TextInput
+                style={[styles.textInput, errors.phone && styles.errorInput]}
+                placeholder="(555) 123-4567"
+                placeholderTextColor="#9CA3AF"
+                keyboardType="phone-pad"
+                value={phone}
+                onChangeText={text => {
+                  setPhone(text);
+                  setErrors(prev => ({ ...prev, phone: '' }));
+                }}
+              />
+              {errors.phone && (
+                <Text style={styles.errorText}>{errors.phone}</Text>
+              )}
+
+              <Text style={styles.label}>License Type *</Text>
+              <TouchableOpacity
+                style={[
+                  styles.dropdownBox,
+                  errors.licenseType && styles.errorInput,
+                ]}
+                onPress={() => {
+                  setShowLicenseOptions(!showLicenseOptions);
+                  setShowStateOptions(false);
+                  setShowDurationOptions(false);
+                }}
+              >
+                <Text
+                  style={
+                    licenseType ? styles.inputText : styles.placeholderText
+                  }
+                >
+                  {licenseType || 'Select license type'}
+                </Text>
+                <Text style={styles.dropdownArrow}>⌄</Text>
+              </TouchableOpacity>
+
+              {showLicenseOptions && (
+                <View style={styles.optionsContainer}>
+                  {licenseOptions.map((item, index) => (
+                    <TouchableOpacity
+                      key={index}
+                      style={styles.optionItem}
+                      onPress={() => {
+                        setLicenseType(item);
+                        setShowLicenseOptions(false);
+                        setErrors(prev => ({ ...prev, licenseType: '' }));
+                      }}
+                    >
+                      <Text style={styles.optionText}>{item}</Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              )}
+
+              {errors.licenseType && (
+                <Text style={styles.errorText}>{errors.licenseType}</Text>
+              )}
+
+              <Text style={styles.label}>State of Practice *</Text>
+              <TouchableOpacity
+                style={[
+                  styles.dropdownBox,
+                  errors.stateOfPractice && styles.errorInput,
+                ]}
+                onPress={() => {
+                  setShowStateOptions(!showStateOptions);
+                  setShowLicenseOptions(false);
+                  setShowDurationOptions(false);
+                }}
+              >
+                <Text
+                  style={
+                    stateOfPractice ? styles.inputText : styles.placeholderText
+                  }
+                >
+                  {stateOfPractice || 'Select state'}
+                </Text>
+                <Text style={styles.dropdownArrow}>⌄</Text>
+              </TouchableOpacity>
+
+              {showStateOptions && (
+                <View style={styles.optionsContainer}>
+                  {stateOptions.map((item, index) => (
+                    <TouchableOpacity
+                      key={index}
+                      style={styles.optionItem}
+                      onPress={() => {
+                        setStateOfPractice(item);
+                        setShowStateOptions(false);
+                        setErrors(prev => ({ ...prev, stateOfPractice: '' }));
+                      }}
+                    >
+                      <Text style={styles.optionText}>{item}</Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              )}
+
+              {errors.stateOfPractice && (
+                <Text style={styles.errorText}>{errors.stateOfPractice}</Text>
+              )}
+
+              <Text style={styles.label}>Want to log any previous hours?</Text>
+
+              <TouchableOpacity
+                style={styles.radioRow}
+                onPress={() => setLogPreviousHours('yes')}
+              >
+                <View
+                  style={[
+                    styles.radioOuter,
+                    logPreviousHours === 'yes' && styles.radioOuterBlue,
+                    logPreviousHours !== 'yes' && styles.radioOuterGray,
+                  ]}
+                >
+                  {logPreviousHours === 'yes' && (
+                    <View style={styles.radioInnerBlue} />
+                  )}
+                </View>
+                <Text style={styles.radioText}>
+                  I want to log previous hours
+                </Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={styles.radioRow}
+                onPress={() => setLogPreviousHours('no')}
+              >
+                <View
+                  style={[
+                    styles.radioOuter,
+                    logPreviousHours === 'no' && styles.radioOuterGray,
+                  ]}
+                >
+                  {logPreviousHours === 'no' && (
+                    <View style={styles.radioInnerGray} />
+                  )}
+                </View>
+                <Text style={styles.radioText}>
+                  I don’t want to log previous hours
+                </Text>
+              </TouchableOpacity>
+
+              <Text style={styles.label}>Session Date *</Text>
+              <TouchableOpacity
+                style={[
+                  styles.dateBox,
+                  errors.sessionDate && styles.errorInput,
+                ]}
+                onPress={() => {
+                  setShowDatePicker(true);
+                  setShowLicenseOptions(false);
+                  setShowStateOptions(false);
+                  setShowDurationOptions(false);
+                }}
+              >
+                <Text style={styles.calendarIcon}>📅</Text>
+                <Text
+                  style={sessionDate ? styles.dateText : styles.placeholderText}
+                >
+                  {sessionDate || 'Select session date'}
+                </Text>
+              </TouchableOpacity>
+              {errors.sessionDate && (
+                <Text style={styles.errorText}>{errors.sessionDate}</Text>
+              )}
+
+              {showDatePicker && (
+                <DateTimePicker
+                  value={selectedDate}
+                  mode="date"
+                  display="default"
+                  onChange={onChangeDate}
+                  minimumDate={new Date()}
+                />
+              )}
+
+              <Text style={styles.label}>Duration *</Text>
+              <TouchableOpacity
+                style={[
+                  styles.dropdownBox,
+                  errors.duration && styles.errorInput,
+                ]}
+                onPress={() => {
+                  setShowDurationOptions(!showDurationOptions);
+                  setShowLicenseOptions(false);
+                  setShowStateOptions(false);
+                }}
+              >
+                <Text
+                  style={duration ? styles.inputText : styles.placeholderText}
+                >
+                  {duration || 'Select duration'}
+                </Text>
+                <Text style={styles.dropdownArrow}>⌄</Text>
+              </TouchableOpacity>
+
+              {showDurationOptions && (
+                <View style={styles.optionsContainer}>
+                  {durationOptions.map((item, index) => (
+                    <TouchableOpacity
+                      key={index}
+                      style={styles.optionItem}
+                      onPress={() => {
+                        setDuration(item);
+                        setShowDurationOptions(false);
+                        setErrors(prev => ({ ...prev, duration: '' }));
+                      }}
+                    >
+                      <Text style={styles.optionText}>{item}</Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              )}
+
+              {errors.duration && (
+                <Text style={styles.errorText}>{errors.duration}</Text>
+              )}
+
+              <Text style={styles.label}>Session Notes (Optional)</Text>
+              <TextInput
+                style={styles.notesBox}
+                placeholder="Add any relevant notes about this session..."
+                placeholderTextColor="#9CA3AF"
+                multiline
+                textAlignVertical="top"
+                value={notes}
+                onChangeText={setNotes}
+              />
+
+              <Text style={styles.label}>Supporting Documents (Optional)</Text>
+
+              <View style={styles.documentOuterBox}>
+                <TouchableOpacity style={styles.uploadDocumentBox}>
+                  <Text style={styles.uploadDocIcon}>⤴</Text>
+                  <Text style={styles.uploadDocText}>
+                    Click to upload documents
+                  </Text>
+                  <Text style={styles.uploadDocSubText}>
+                    PDF, DOC, or images
+                  </Text>
+                </TouchableOpacity>
+
+                <View style={styles.fileRow}>
+                  <Text style={styles.fileIcon}>📄</Text>
+                  <Text style={styles.fileName}>Document_1.pdf</Text>
+                  <Text style={styles.fileClose}>✕</Text>
+                </View>
+              </View>
+
+              <TouchableOpacity
+                style={[
+                  styles.continueButton,
+                  loading && styles.disabledButton,
+                ]}
+                onPress={handleContinue}
+                disabled={loading}
+              >
+                {loading ? (
+                  <ActivityIndicator color="#FFFFFF" size="small" />
+                ) : (
+                  <Text style={styles.continueButtonText}>Continue</Text>
+                )}
+              </TouchableOpacity>
+
+              <View style={{ height: 30 }} />
+            </ScrollView>
+          </View>
         </View>
-      </View>
-    </SafeAreaView>
+      </SafeAreaView>
+    </LinearGradient>
   );
 }
 

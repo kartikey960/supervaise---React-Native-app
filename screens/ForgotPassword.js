@@ -38,81 +38,86 @@ export default function ForgotPassword({ navigation }) {
   };
 
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}></Text>
-      </View>
+    <LinearGradient
+      colors={['#A7D8E6', '#6EC1C7', '#3AA6A6']}
+      style={{ flex: 1 }}
+    >
+      <SafeAreaView style={styles.safeArea}>
+        <View style={styles.header}>
+          <Text style={styles.headerTitle}></Text>
+        </View>
 
-      <LinearGradient
-        colors={['#8BC1C9', '#5B8EF0', '#45C6D5']}
-        start={{ x: 0.2, y: 0 }}
-        end={{ x: 0.8, y: 1 }}
-        style={styles.gradientContainer}
-      >
-        <View style={styles.card}>
-          <Image
-            source={require('../assests/logo/logo2.png')}
-            style={styles.logo}
-            resizeMode="contain"
-          />
-
-          <Text style={styles.welcomeText}>Welcome to SPVN</Text>
-
-          <TouchableOpacity style={styles.loginBadge}>
-            <Text style={styles.loginBadgeText}>Clinician Login</Text>
-          </TouchableOpacity>
-
-          <Text style={styles.forgotPasswordText}>Forgot Password</Text>
-
-          <TouchableOpacity style={styles.iconCircle}>
+        <LinearGradient
+          colors={['#8BC1C9', '#5B8EF0', '#45C6D5']}
+          start={{ x: 0.2, y: 0 }}
+          end={{ x: 0.8, y: 1 }}
+          style={styles.gradientContainer}
+        >
+          <View style={styles.card}>
             <Image
-              source={require('../assests/logo/forgotpass.png')}
-              style={styles.iconImage}
+              source={require('../assests/logo/logo2.png')}
+              style={styles.logo}
               resizeMode="contain"
             />
-          </TouchableOpacity>
 
-          <Text style={styles.instructionText}>
-            Please enter your registered Email Id
-          </Text>
+            <Text style={styles.welcomeText}>Welcome to SPVN</Text>
 
-          <Text style={styles.label}>Email Id</Text>
+            <TouchableOpacity style={styles.loginBadge}>
+              <Text style={styles.loginBadgeText}>Clinician Login</Text>
+            </TouchableOpacity>
 
-          <View
-            style={[
-              styles.inputContainer,
-              emailError ? styles.inputError : null,
-            ]}
-          >
-            <Text style={styles.inputIcon}>📧</Text>
+            <Text style={styles.forgotPasswordText}>Forgot Password</Text>
 
-            <TextInput
-              placeholder="john.kin@gmail.com"
-              placeholderTextColor="#A3A3B5"
-              style={styles.input}
-              value={email}
-              onChangeText={text => {
-                setEmail(text);
-                if (emailError) setEmailError('');
-              }}
-              keyboardType="email-address"
-              autoCapitalize="none"
-            />
+            <TouchableOpacity style={styles.iconCircle}>
+              <Image
+                source={require('../assests/logo/forgotpass.png')}
+                style={styles.iconImage}
+                resizeMode="contain"
+              />
+            </TouchableOpacity>
+
+            <Text style={styles.instructionText}>
+              Please enter your registered Email Id
+            </Text>
+
+            <Text style={styles.label}>Email Id</Text>
+
+            <View
+              style={[
+                styles.inputContainer,
+                emailError ? styles.inputError : null,
+              ]}
+            >
+              <Text style={styles.inputIcon}>📧</Text>
+
+              <TextInput
+                placeholder="john.kin@gmail.com"
+                placeholderTextColor="#A3A3B5"
+                style={styles.input}
+                value={email}
+                onChangeText={text => {
+                  setEmail(text);
+                  if (emailError) setEmailError('');
+                }}
+                keyboardType="email-address"
+                autoCapitalize="none"
+              />
+            </View>
+
+            {emailError ? (
+              <Text style={styles.errorText}>{emailError}</Text>
+            ) : null}
+
+            <TouchableOpacity
+              style={styles.continueButton}
+              onPress={handleContinue}
+            >
+              <Text style={styles.continueButtonText}>Continue</Text>
+            </TouchableOpacity>
           </View>
-
-          {emailError ? (
-            <Text style={styles.errorText}>{emailError}</Text>
-          ) : null}
-
-          <TouchableOpacity
-            style={styles.continueButton}
-            onPress={handleContinue}
-          >
-            <Text style={styles.continueButtonText}>Continue</Text>
-          </TouchableOpacity>
-        </View>
-      </LinearGradient>
-    </SafeAreaView>
+        </LinearGradient>
+      </SafeAreaView>
+    </LinearGradient>
   );
 }
 

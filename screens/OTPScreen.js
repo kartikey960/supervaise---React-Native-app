@@ -100,7 +100,7 @@ export default function OTPscreen({ navigation, route }) {
 
       Alert.alert('Success', res.data.message);
 
-      navigation.navigate('HomeScreen'); // change if needed
+      navigation.navigate('SessionScreen');
     } catch (error) {
       console.log(error.response?.data);
       Alert.alert('Error', error.response?.data?.message || 'Invalid OTP');

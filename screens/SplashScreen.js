@@ -1,24 +1,30 @@
 import React, { useEffect } from 'react';
 import { View, Image, StyleSheet } from 'react-native';
+import LinearGradient from 'react-native-linear-gradient';
 
 export default function SplashScreen({ navigation }) {
   useEffect(() => {
     const timer = setTimeout(() => {
-      navigation.replace('Walkthrough1');
+      navigation.replace('OnBoardingScreen');
     }, 5000);
 
     return () => clearTimeout(timer);
   }, []);
   return (
-    <View style={styles.container}>
-      <View>
-        <Image
-          source={require('../assests/logo/logo.png')}
-          style={styles.logo}
-          resizeMode="contain"
-        />
+    <LinearGradient
+      colors={['#A7D8E6', '#6EC1C7', '#3AA6A6']}
+      style={{ flex: 1 }}
+    >
+      <View style={styles.container}>
+        <View>
+          <Image
+            source={require('../assests/logo/logo.png')}
+            style={styles.logo}
+            resizeMode="contain"
+          />
+        </View>
       </View>
-    </View>
+    </LinearGradient>
   );
 }
 

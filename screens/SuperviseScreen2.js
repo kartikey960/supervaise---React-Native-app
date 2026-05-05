@@ -8,80 +8,92 @@ import {
   Image,
   StatusBar,
 } from 'react-native';
+import LinearGradient from 'react-native-linear-gradient';
 
 export default function SuperviseScreen2({ navigation }) {
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <StatusBar barStyle="dark-content" backgroundColor="#A9D9E6" />
+    <LinearGradient
+      colors={['#A7D8E6', '#6EC1C7', '#3AA6A6']}
+      style={{ flex: 1 }}
+    >
+      <SafeAreaView style={styles.safeArea}>
+        <StatusBar barStyle="dark-content" backgroundColor="#A9D9E6" />
 
-      <View style={styles.background}>
-        <View style={styles.card}>
-          <TouchableOpacity
-            style={styles.backRow}
-            onPress={() => navigation?.goBack()}
-          >
-            <Text style={styles.backArrow}>←</Text>
-            <Text style={styles.backText}>Back</Text>
-          </TouchableOpacity>
-          <Image
-            source={require('../assests/logo/logo2.png')}
-            style={styles.logo}
-          />
-
-          <Text style={styles.welcomeText}>Welcome to SPVN</Text>
-
-          <View style={styles.badge}>
-            <Text style={styles.badgeText}>Clinician Sign Up</Text>
-          </View>
-
-          <Text style={styles.title}>Create Your Account</Text>
-          <Text style={styles.subtitle}>
-            Choose your preferred sign up method
-          </Text>
-
-          <TouchableOpacity
-            style={styles.googleButton}
-            onPress={() => navigation.navigate('SessionDetailsScreen')}
-          >
-            <Image
-              source={require('../assests/logo/googlelogo.png')}
-              style={styles.googleIcon}
-            />
-            <Text style={styles.googleText}>Continue with Google</Text>
-          </TouchableOpacity>
-
-          <View style={styles.dividerRow}>
-            <View style={styles.divider} />
-            <Text style={styles.orText}>or</Text>
-            <View style={styles.divider} />
-          </View>
-
-          <TouchableOpacity style={styles.emailButton}>
-            <Image
-              source={require('../assests/logo/EmailIcon.png')}
-              style={styles.EmailIcon}
-            />
-
-            <Text style={styles.emailButtonText}>Sign up with Email</Text>
-          </TouchableOpacity>
-
-          <View style={styles.signInRow}>
-            <Text style={styles.signInText}>Already have an account? </Text>
-            <TouchableOpacity>
-              <Text style={styles.signInLink}>Sign in</Text>
+        <View style={styles.background}>
+          <View style={styles.card}>
+            <TouchableOpacity
+              style={styles.backRow}
+              onPress={() => navigation?.goBack()}
+            >
+              <Text style={styles.backArrow}>←</Text>
+              <Text style={styles.backText}>Back</Text>
             </TouchableOpacity>
-          </View>
+            <Image
+              source={require('../assests/logo/logo2.png')}
+              style={styles.logo}
+            />
 
-          <View style={styles.footer}>
-            <Text style={styles.footerText}>
-              By continuing, you agree to our{' '}
-              <Text style={styles.footerLink}>Terms of Service</Text> and{'\n'}
-              <Text style={styles.footerLink}>Privacy Policy</Text>
+            <Text style={styles.welcomeText}>Welcome to SPVN</Text>
+
+            <View style={styles.badge}>
+              <Text style={styles.badgeText}>Clinician Sign Up</Text>
+            </View>
+
+            <Text style={styles.title}>Create Your Account</Text>
+            <Text style={styles.subtitle}>
+              Choose your preferred sign up method
             </Text>
+
+            <TouchableOpacity
+              style={styles.googleButton}
+              onPress={() => navigation.navigate('ViewDetailScreen')}
+            >
+              <Image
+                source={require('../assests/logo/googlelogo.png')}
+                style={styles.googleIcon}
+              />
+              <Text style={styles.googleText}>Continue with Google</Text>
+            </TouchableOpacity>
+
+            <View style={styles.dividerRow}>
+              <View style={styles.divider} />
+              <Text style={styles.orText}>or</Text>
+              <View style={styles.divider} />
+            </View>
+
+            <TouchableOpacity
+              style={styles.emailButton}
+              onPress={() => navigation.navigate('SessionDetailsScreen')}
+            >
+              <Image
+                source={require('../assests/logo/EmailIcon.png')}
+                style={styles.EmailIcon}
+              />
+
+              <Text style={styles.emailButtonText}>Sign up with Email</Text>
+            </TouchableOpacity>
+
+            <View style={styles.signInRow}>
+              <Text style={styles.signInText}>Already have an account? </Text>
+              <TouchableOpacity
+                onPress={() => navigation.navigate('LoginScreen')}
+              >
+                <Text style={styles.signInLink}>Sign in</Text>
+              </TouchableOpacity>
+            </View>
+
+            <View style={styles.footer}>
+              <Text style={styles.footerText}>
+                By continuing, you agree to our{' '}
+                <Text style={styles.footerLink}>Terms of Service</Text> and
+                {'\n'}
+                <Text style={styles.footerLink}>Privacy Policy</Text>
+              </Text>
+            </View>
           </View>
         </View>
-      </View>
-    </SafeAreaView>
+      </SafeAreaView>
+    </LinearGradient>
   );
 }
 
@@ -141,10 +153,10 @@ const styles = StyleSheet.create({
 
   welcomeText: {
     fontSize: 22,
-    fontWeight: '500',
+    fontWeight: '400',
     color: '#1F2937',
     marginBottom: 20,
-    fontFamily: 'Sekuya-Regular',
+    fontFamily: 'ARIAL.TTF',
   },
 
   badge: {
@@ -162,17 +174,20 @@ const styles = StyleSheet.create({
   },
 
   title: {
-    fontSize: 26,
-    fontWeight: '500',
+    fontSize: 16,
+    fontWeight: '400',
     color: '#1F2937',
     marginBottom: 10,
+    lineHeight: 24,
   },
 
   subtitle: {
-    fontSize: 17,
+    fontSize: 16,
     color: '#6B7280',
     textAlign: 'center',
     marginBottom: 34,
+    fontWeight: '400',
+    linearheight: 24,
   },
 
   googleButton: {
@@ -202,9 +217,11 @@ const styles = StyleSheet.create({
   },
 
   googleText: {
-    fontSize: 17,
+    fontSize: 14,
     color: '#1F2937',
     fontWeight: '400',
+    fontWeight: '400',
+    linearheight: 20,
   },
   dividerRow: {
     width: '100%',
@@ -243,26 +260,29 @@ const styles = StyleSheet.create({
 
   emailButtonText: {
     color: '#FFFFFF',
-    fontSize: 17,
-    fontWeight: '500',
+    fontSize: 14,
+    fontWeight: '400',
+    linearheight: 20,
   },
 
   signInRow: {
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: 'auto',
-    padding: 40,
+    padding: 5,
   },
 
   signInText: {
-    fontSize: 15,
+    fontSize: 12,
     color: '#6B7280',
+    linearheight: 16,
   },
 
   signInLink: {
-    fontSize: 15,
+    fontSize: 12,
     color: '#3366FF',
     fontWeight: '500',
+    linearheight: 16,
   },
 
   footer: {
@@ -273,7 +293,7 @@ const styles = StyleSheet.create({
 
   footerText: {
     textAlign: 'center',
-    fontSize: 13,
+    fontSize: 12,
     color: '#7B7B7B',
     lineHeight: 20,
   },
@@ -281,5 +301,6 @@ const styles = StyleSheet.create({
   footerLink: {
     color: '#3366FF',
     fontWeight: '500',
+    fontSize: 12,
   },
 });

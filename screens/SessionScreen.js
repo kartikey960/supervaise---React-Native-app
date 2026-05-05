@@ -10,6 +10,7 @@ import {
   StatusBar,
   Alert,
 } from 'react-native';
+import LinearGradient from 'react-native-linear-gradient';
 
 export default function SessionScreen({ navigation }) {
   const [email, setEmail] = useState('');
@@ -51,110 +52,117 @@ export default function SessionScreen({ navigation }) {
   };
 
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <StatusBar barStyle="dark-content" backgroundColor="#8ED6E3" />
+    <LinearGradient
+      colors={['#A7D8E6', '#6EC1C7', '#3AA6A6']}
+      style={{ flex: 1 }}
+    >
+      <SafeAreaView style={styles.safeArea}>
+        <StatusBar barStyle="dark-content" backgroundColor="#8ED6E3" />
 
-      <View style={styles.background}>
-        <View style={styles.card}>
-          <Image
-            source={require('../assests/logo/logo2.png')}
-            style={styles.logo}
-            resizeMode="contain"
-          />
+        <View style={styles.background}>
+          <View style={styles.card}>
+            <Image
+              source={require('../assests/logo/logo2.png')}
+              style={styles.logo}
+              resizeMode="contain"
+            />
 
-          <Text style={styles.welcomeText}>Welcome to SPVN</Text>
+            <Text style={styles.welcomeText}>Welcome to SPVN</Text>
 
-          <View style={styles.rolePill}>
-            <Text style={styles.rolePillText}>Clinician Login</Text>
-          </View>
+            <View style={styles.rolePill}>
+              <Text style={styles.rolePillText}>Clinician Login</Text>
+            </View>
 
-          <Text style={styles.loginTitle}>Login in to your account</Text>
+            <Text style={styles.loginTitle}>Login in to your account</Text>
 
-          <Text style={styles.label}>Email Address *</Text>
-          <TextInput
-            style={[styles.input, errors.email && styles.errorInput]}
-            placeholder="john.doe@example.com"
-            placeholderTextColor="#A1A1AA"
-            keyboardType="email-address"
-            autoCapitalize="none"
-            value={email}
-            onChangeText={text => {
-              setEmail(text);
-              if (errors.email) {
-                setErrors(prev => ({ ...prev, email: '' }));
-              }
-            }}
-          />
-          {errors.email && <Text style={styles.errorText}>{errors.email}</Text>}
-
-          <Text style={styles.label}>Password *</Text>
-          <View
-            style={[
-              styles.passwordWrapper,
-              errors.password && styles.errorInput,
-            ]}
-          >
+            <Text style={styles.label}>Email Address *</Text>
             <TextInput
-              style={styles.passwordInput}
-              placeholder="••••••••"
+              style={[styles.input, errors.email && styles.errorInput]}
+              placeholder="john.doe@example.com"
               placeholderTextColor="#A1A1AA"
-              secureTextEntry={!showPassword}
-              value={password}
+              keyboardType="email-address"
+              autoCapitalize="none"
+              value={email}
               onChangeText={text => {
-                setPassword(text);
-                if (errors.password) {
-                  setErrors(prev => ({ ...prev, password: '' }));
+                setEmail(text);
+                if (errors.email) {
+                  setErrors(prev => ({ ...prev, email: '' }));
                 }
               }}
             />
-            <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
-              <Text style={styles.eyeIcon}>{showPassword ? '👁️' : '👁️'}</Text>
+            {errors.email && (
+              <Text style={styles.errorText}>{errors.email}</Text>
+            )}
+
+            <Text style={styles.label}>Password *</Text>
+            <View
+              style={[
+                styles.passwordWrapper,
+                errors.password && styles.errorInput,
+              ]}
+            >
+              <TextInput
+                style={styles.passwordInput}
+                placeholder="••••••••"
+                placeholderTextColor="#A1A1AA"
+                secureTextEntry={!showPassword}
+                value={password}
+                onChangeText={text => {
+                  setPassword(text);
+                  if (errors.password) {
+                    setErrors(prev => ({ ...prev, password: '' }));
+                  }
+                }}
+              />
+              <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
+                <Text style={styles.eyeIcon}>{showPassword ? '👁️' : '👁️'}</Text>
+              </TouchableOpacity>
+            </View>
+            {errors.password && (
+              <Text style={styles.errorText}>{errors.password}</Text>
+            )}
+
+            <TouchableOpacity
+              style={styles.forgotWrapper}
+              onPress={() => {
+                navigation.navigate('ForgotPassword');
+              }}
+            >
+              <Text style={styles.forgotText}>Forgot Password?</Text>
             </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.continueButton}
+              onPress={() => {
+                handleContinue();
+              }}
+            >
+              <Text style={styles.continueButtonText}>Continue</Text>
+            </TouchableOpacity>
+
+            <View style={styles.dividerRow}>
+              <View style={styles.line} />
+              <Text style={styles.orText}>or</Text>
+              <View style={styles.line} />
+            </View>
+
+            <TouchableOpacity style={styles.googleButton}>
+              <Image
+                source={require('../assests/logo/googlelogo.png')}
+                style={styles.googleIcon}
+              />
+              <Text style={styles.googleButtonText}>Continue with Google</Text>
+            </TouchableOpacity>
+
+            <Text style={styles.footerText}>
+              By continuing, you agree to our{' '}
+              <Text style={styles.linkText}>Terms of Service</Text> and{'\n'}
+              <Text style={styles.linkText}>Privacy Policy</Text>
+            </Text>
           </View>
-          {errors.password && (
-            <Text style={styles.errorText}>{errors.password}</Text>
-          )}
-
-          <TouchableOpacity
-            style={styles.forgotWrapper}
-            onPress={() => {
-              navigation.navigate('ForgotPassword');
-            }}
-          >
-            <Text style={styles.forgotText}>Forgot Password?</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={styles.continueButton}
-            onPress={() => {
-              handleContinue();
-            }}
-          >
-            <Text style={styles.continueButtonText}>Continue</Text>
-          </TouchableOpacity>
-
-          <View style={styles.dividerRow}>
-            <View style={styles.line} />
-            <Text style={styles.orText}>or</Text>
-            <View style={styles.line} />
-          </View>
-
-          <TouchableOpacity style={styles.googleButton}>
-            <Image
-              source={require('../assests/logo/googlelogo.png')}
-              style={styles.googleIcon}
-            />
-            <Text style={styles.googleButtonText}>Continue with Google</Text>
-          </TouchableOpacity>
-
-          <Text style={styles.footerText}>
-            By continuing, you agree to our{' '}
-            <Text style={styles.linkText}>Terms of Service</Text> and{'\n'}
-            <Text style={styles.linkText}>Privacy Policy</Text>
-          </Text>
         </View>
-      </View>
-    </SafeAreaView>
+      </SafeAreaView>
+    </LinearGradient>
   );
 }
 
